@@ -3,8 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 INPUT_CSV = "joint_states_filtered_wide.csv"
-OUT_CSV = "left_arm_joint2_vel_only.csv"
-COL = "left_arm_joint2_vel"
+OUT_CSV = "left_arm_joint2_pos_only.csv"
+COL = "left_arm_joint2_pos"
 
 # --- Load ---
 df = pd.read_csv(INPUT_CSV)
@@ -60,15 +60,15 @@ mag = np.abs(X) / (np.sum(window) / 2.0)
 plt.figure()
 plt.plot(t, x)
 plt.xlabel("Time [s]")
-plt.ylabel("left_arm_joint2_vel [rad/s]")
-plt.title("Time domain: left_arm_joint2_vel")
+plt.ylabel("left_arm_joint2_pos [rad]")
+plt.title("Time domain: left_arm_joint2_pos")
 plt.grid(True)
 
 plt.figure()
 plt.plot(freq, mag)
 plt.xlabel("Frequency [Hz]")
 plt.ylabel("Magnitude")
-plt.title("Frequency domain (FFT): left_arm_joint2_vel")
+plt.title("Frequency domain (FFT): left_arm_joint2_pos")
 plt.grid(True)
 
 # Optional: focus on low frequencies (edit as you like)
