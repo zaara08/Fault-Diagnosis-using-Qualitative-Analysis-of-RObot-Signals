@@ -277,28 +277,152 @@ def add_action_backgrounds(ax, df):
         ax.axvspan(start_time,
                   df['time_sec'].iloc[-1],
                   alpha=0.2, color=color)
+def plot_all_good_runs(good_filepaths, output_dir):
+    """
+    Plots lidar_left signal for ALL good runs overlaid
+    on the same graph.
+    Shows consistency across all good runs!
+    Perfect for proving data reliability in report!
+    """
+    print('\nCreating all good runs overlay plot...')
 
+    fig, axes = plt.subplots(3, 1, figsize=(14, 12))
+
+    fig.suptitle(
+        'All Good Runs Overlay — Robile Wall Following\n'
+        'Showing Consistency Across All Runs',
+        fontsize=14, fontweight='bold')
+
+    # Signals to overlay
+    overlay_signals = [
+        ('lidar_left',    'LIDAR Left (m)',     'Wall Distance'),
+        ('odom_linear_x', 'Speed (m/s)',         'Forward Speed'),
+        ('imu_angular_z', 'IMU Angular (rad/s)', 'Actual Rotation'),
+    ]
+
+    # Color map for different runs
+    colors = plt.cm.tab10(np.linspace(0, 1, len(good_filepaths)))
+
+    for i, (signal, ylabel, title) in enumerate(overlay_signals):
+        ax = axes[i]
+
+        for j, filepath in enumerate(good_filepaths):
+            try:
+                df = load_csv(filepath)
+
+                # Only plot wall_following sections
+                wall_following = df[
+                    df['action_label'] == 'wall_following']
+
+                if len(wall_following) < 5:
+                    continue
+
+                # Reset time to start from 0
+                t = wall_following['time_sec'].values
+                t = t - t[0]
+
+                if signal in df.columns:
+                    run_name = f'Run {j+1}'
+                    ax.plot(t, wall_following[signal].values,
+                           color=colors[j],
+                           linewidth=1.2,
+                           alpha=0.8,
+                           label=run_name)
+
+            except Exception as e:
+                print(f'  Warning: Could not process {filepath}: {e}')
+                continue
+
+        # Add target line for lidar_left
+        if signal == 'lidar_left':
+            ax.axhline(y=0.5, color='red',
+                      linestyle='--',
+                      linewidth=2,
+                      label='Target 0.5m',
+                      zorder=5)
+
+        ax.set_title(title, fontsize=11)
+        ax.set_ylabel(ylabel, fontsize=10)
+        ax.grid(True, alpha=0.3)
+        ax.legend(loc='upper right',
+                 fontsize=8,
+                 ncol=2)
+
+    axes[-1].set_xlabel('Time (seconds)', fontsize=12)
+
+    plt.tight_layout()
+
+    output_filename = os.path.join(
+        output_dir, 'all_good_runs_overlay.png')
+    plt.savefig(output_filename,
+               dpi=150,
+               bbox_inches='tight')
+    print(f'Saved: {output_filename}')
+    plt.close()
+
+    return output_filename
 
 # ── MAIN ───────────────────────────────────────────────────────
+# if __name__ == '__main__':
+
+#     DATA_DIR   = os.path.expanduser('~/rnd_ws/data')
+#     OUTPUT_DIR = os.path.expanduser('~/rnd_ws/plots')
+
+#     # ── PICK YOUR FILES HERE ───────────────────────────────────
+#     GOOD_FILE = 'wall_data_2026-07-04_13-52-05.csv'
+#     BAD_FILE  = 'wall_data_2026-07-04_14-43-56.csv'
+#     # ──────────────────────────────────────────────────────────
+
+#     good_path = os.path.join(DATA_DIR, GOOD_FILE)
+#     bad_path  = os.path.join(DATA_DIR, BAD_FILE)
+
+#     # Plot individual runs
+#     plot_run(good_path, 'Good Run', OUTPUT_DIR)
+#     plot_run(bad_path,  'Bad Run',  OUTPUT_DIR)
+
+#     # Plot comparison
+#     plot_comparison(good_path, bad_path, OUTPUT_DIR)
+
+#     print('\n✅ All plots saved to:', OUTPUT_DIR)
+#     print('Open the plots folder to see your graphs!')
 if __name__ == '__main__':
 
     DATA_DIR   = os.path.expanduser('~/rnd_ws/data')
     OUTPUT_DIR = os.path.expanduser('~/rnd_ws/plots')
 
-    # ── PICK YOUR FILES HERE ───────────────────────────────────
+    # ── YOUR FILES ─────────────────────────────────────────────
     GOOD_FILE = 'wall_data_2026-07-04_13-52-05.csv'
     BAD_FILE  = 'wall_data_2026-07-04_14-43-56.csv'
+
+    # All 10 good run files
+    GOOD_RUNS = [
+        'wall_data_2026-07-04_13-52-05.csv',
+        'wall_data_2026-07-04_14-02-30.csv',
+        'wall_data_2026-07-04_14-04-55.csv',
+        'wall_data_2026-07-04_14-06-45.csv',
+        'wall_data_2026-07-04_14-08-22.csv',
+        'wall_data_2026-07-04_14-10-18.csv',
+        'wall_data_2026-07-04_14-11-55.csv',
+        'wall_data_2026-07-04_14-13-37.csv',
+        'wall_data_2026-07-04_14-15-50.csv',
+        'wall_data_2026-07-04_14-28-30.csv',
+    ]
     # ──────────────────────────────────────────────────────────
 
     good_path = os.path.join(DATA_DIR, GOOD_FILE)
     bad_path  = os.path.join(DATA_DIR, BAD_FILE)
 
+    good_paths = [os.path.join(DATA_DIR, f) for f in GOOD_RUNS]
+
     # Plot individual runs
-    plot_run(good_path, 'Good Run', OUTPUT_DIR)
-    plot_run(bad_path,  'Bad Run',  OUTPUT_DIR)
+    plot_run(good_path, 'Good_Run', OUTPUT_DIR)
+    plot_run(bad_path,  'Bad_Run',  OUTPUT_DIR)
 
     # Plot comparison
     plot_comparison(good_path, bad_path, OUTPUT_DIR)
 
+    # Plot all good runs overlaid
+    plot_all_good_runs(good_paths, OUTPUT_DIR)
+
     print('\n✅ All plots saved to:', OUTPUT_DIR)
-    print('Open the plots folder to see your graphs!')
+    print('Check ~/rnd_ws/plots/ folder!')
