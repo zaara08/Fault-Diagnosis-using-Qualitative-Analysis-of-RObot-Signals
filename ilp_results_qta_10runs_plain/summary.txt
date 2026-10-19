@@ -12,7 +12,8 @@ Avg Recall: 1.00
 
 Phase: wall_following
 All rules found:
-  [10/10x] phase_correct(V0):- lidar_constant(V0).
+  [7/10x] phase_correct(V0):- lidar_fr_oscillating(V0).
+  [3/10x] phase_correct(V0):- lidar_constant(V0).
 Avg Recall: 1.00
 
 Phase: obstacle_detected
