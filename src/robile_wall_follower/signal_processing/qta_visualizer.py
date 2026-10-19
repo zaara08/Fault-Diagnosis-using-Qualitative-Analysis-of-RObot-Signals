@@ -114,17 +114,30 @@ def apply_qta(values):
     normalized_slope = slope / abs(mean_val) \
         if abs(mean_val) > 0 else slope
 
-    # Step 4: Classify
-    if cv > 0.15 and \
-       abs(normalized_slope) < 0.01:
-        return 'is_oscillating'
+    # # Step 4: Classify
+    # if cv > 0.15 and \
+    #    abs(normalized_slope) < 0.01:
+    #     return 'is_oscillating'
 
+    # if normalized_slope > SLOPE_THRESHOLD:
+    #     return 'is_increasing'
+    # elif normalized_slope < -SLOPE_THRESHOLD:
+    #     return 'is_decreasing'
+    # else:
+    #     return 'is_constant'
+    # Step 4: Classify
+    # Trend first: a clear rise or fall is increasing/decreasing,
+    # even if the spread is large (long smooth ramps).
     if normalized_slope > SLOPE_THRESHOLD:
         return 'is_increasing'
     elif normalized_slope < -SLOPE_THRESHOLD:
         return 'is_decreasing'
-    else:
-        return 'is_constant'
+
+    # No clear trend, but large spread -> oscillating
+    if cv > 0.15:
+        return 'is_oscillating'
+
+    return 'is_constant'
 
 
 def get_fitted_line(values, indices):

@@ -7,13 +7,14 @@ Good runs only! idle + searching_wall removed
 
 Phase: approaching_wall
 All rules found:
-  [10/10x] phase_correct(V0):- lidar_fr_increasing(V0).
+  [6/10x] phase_correct(V0):- lidar_decreasing(V0).
+  [4/10x] phase_correct(V0):- lidar_fr_increasing(V0).
 Avg Recall: 1.00
 
 Phase: wall_following
 All rules found:
-  [7/10x] phase_correct(V0):- lidar_fr_oscillating(V0).
-  [3/10x] phase_correct(V0):- lidar_constant(V0).
+  [6/10x] phase_correct(V0):- lidar_fr_oscillating(V0).
+  [4/10x] phase_correct(V0):- lidar_constant(V0).
 Avg Recall: 1.00
 
 Phase: obstacle_detected
